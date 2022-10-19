@@ -20,8 +20,9 @@ from news.views import HomeView
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('news/', include("news.urls")),
+    path("api/v1/news/", include("news.urls")),
     path('admin/', admin.site.urls),
-    path('user/', include('feeduser.urls'))
+    path('user/', include('feeduser.urls')),
 ]
 
 if settings.DEBUG:
