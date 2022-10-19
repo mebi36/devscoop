@@ -1,0 +1,136 @@
+-Make a scheduled job to sync the published news to a DB every 5 minutes.
+You can start with the latest 100 items, and sync every new item from there.
+
+Implement a view to list the latest news;
+
+Allow filtering by the type of item;
+Implement a search box for filtering by text
+
+As there are hundreds of news you probably want to use pagination or lazy 
+loading when you display them.
+
+It is also important to expose an API so that our ata can be consumed:
+    GET: List the items, allowing filters to be specified;
+    POST: Add new items to the database (not present in Hacker News);
+
+Only display top-level items in the list, and display their children (comments,
+for example) on a detail page;
+
+**  In the API, allow updating and deleting items if they were created in the API
+    (but never data that was retrieved from Hacker News);
+
+
+Item: can be     
+    Job, 
+    Post/Story, 
+    Comment, 
+    Poll, 
+    PollOption
+
+Models
+
+BASE
+id      integer The item's unique id.
+deleted boolean true if the item is deleted
+type    string  The type of item. One of "job", "story", "comment", "poll", or "pollopt" |
+                Allowed values: job, story, comment, poll, pollopt
+by      string  The username of the item's author.
+time    integer Creation date of the item, in Unix time.
+dead    boolean true if the item is dead
+kids    array[integer]  The ids of the item's comments, in ranked display order.
+
+
+
+JOB
+id
+deleted
+type
+by
+time
+dead
+kids
+
+text    string  The comment, story or poll text. HTML
+url     string  The URL of the story.
+title   string  The title of the story, poll or job.
+
+
+STORY
+id
+deleted
+type
+by
+time
+dead
+kids
+
+descendants integer in the case of stories or poll, the total comment count.
+score   integer The story's score, or the votes for a pollopt.
+title   string  The title of the story, poll or job.
+url     string  The URL of the story.
+                default: http://stoplight.io/prism/
+
+
+COMMENT
+id
+deleted
+type
+by
+time
+dead
+kids
+
+parent  integer The item's parent. For comments, either another comment, or the relevant
+                story. For pollopts, the relevant poll.
+text    string  The comment, story or poll text. HTML.
+
+
+
+POLL
+id
+deleted
+type
+by
+time
+dead
+kids    
+
+parts   array[integer]  A list of related pollopts, in display order.
+descendants integer In teh case of stories or polls, the total comment count
+score   integer The story's score, or the votes for a pollopt.
+title   string  The title of the story, poll or job.
+text    string  The comment, story or poll text. HTML
+
+
+
+POLLOPTION
+id
+deleted
+type
+by
+time
+dead
+kids
+
+parent  integer    The item's parent. For comments, either another comment or the relevant
+            story. For pollopts, the relevant poll.
+score   integer     The story's score, or the votes for a pollopt.
+
+
+
+USER
+id  string  The user's unique username .Case-sensitive
+delay   integer Delay in minutes between a comment's creation and its visibility
+                to other users/
+created     number  creation date of the user, in Unix time.
+karma       number  The user's karma.
+about       string  The user's optional self-description. HTML.
+submitted   array[integer]  List of the user's stories, polls and comments.
+
+Top-level items: Story, Job, Poll
+Children: Comments, PollOption
+
+
+How do you handle maintaining the ID from the api without possibility of 
+conflicts if you are going to create some items on your local system?
+

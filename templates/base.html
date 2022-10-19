@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <nav class="navbar navbar-expand-lg bg-dark fixed-top border-bottom border-secondary">
+            <div class="container-fluid mx-3 bg-warning bg-opacity-25">
+                <router-link class="navbar-brand" to="/">
+                    <img src="../assets/logo.svg" class="img-fluid navbar-brand" alt="logo" style="max-height: 60px; max-width: 60px;">
+                    TAMS
+                </router-link>    
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navmenu">
+                    <!-- <span class="navbar-toggler-icon bg-success"></span> -->
+                    <BIconList class="navbar-toggle-icon h1 text-white" />
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navmenu">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                        <router-link class="nav-link" to="/">Home</router-link>
+                        </li>
+                        <li class="nav-item dropdown" v-if="$store.state.isAuthenticated">
+                          <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">Attendance</a>
+                          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                              <router-link class="nav-link" to="/attendance/download"><span class="text-nowrap">Download Attendance</span></router-link>
+                            </li>
+                            <li>
+                              <router-link class="nav-link" to="/attendance/by-course"><span class="text-nowrap">Attendance Analytics</span></router-link>
+                            </li>
+                            <li>
+                              <router-link class="nav-link" to="/attendance/student-report"><span class="text-nowrap">Student Reports</span></router-link>
+                            </li>    
+                          </ul>
+                        </li>
+                        <li class="nav-item">
+                          <router-link class="nav-link" to="/product-details">Product Details</router-link>
+                        </li>
+                          <li class="nav-item">
+                            <router-link class="nav-link" to="/contact">Contact Us</router-link>
+                        </li>
+                        <template v-if="$store.state.isAuthenticated">
+                        <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <b-icon-person-fill class="text-white h4"></b-icon-person-fill>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDopdown">
+                            <li><router-link class="dropdown-item" to="/">Profile</router-link></li>
+                            <li><button class=" btn btn-dark dropdown-item text-danger" @click="logout()">Log out</button></li>
+                        </ul>
+                        </li>
+                        </template>
+                        <li class="nav-item" v-else>
+                        <router-link class="btn" to="/login">Log In</router-link>
+                        </li>
+                    </ul>
+                </div>
+            </div> 
+        </nav>
+    </div>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>
