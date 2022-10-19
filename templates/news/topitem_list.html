@@ -1,3 +1,15 @@
+<div>
+    <form method="post">
+      {{csrf_token}}
+      <label for="item_type">Filter news feed by:</label>
+      <select id="item_type" name="item_type">
+        {% for item in item_types %}
+        <option value={{item.value}}>{{item.label}}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Filter</button>
+    </form>
+</div>
 <ol>
 {% for topitem in page_obj %}
     <li>{{topitem.title}}</li>
