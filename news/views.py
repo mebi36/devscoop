@@ -11,11 +11,14 @@ class LatestTopItemListView(generic.ListView):
 
 
     def get_queryset(self):
-        return TopItem.objects.all().order_by('-time')
+        qs = TopItem.objects.all().order_by('-time')
+        if "item_type" in self.kwargs:
+            qs.filter(type=self.kwargs["item_type"])
+        return qs
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context =  super().get_context_data(**kwargs)
-        context["item_type"] = [ItemTypeChoices.JOB, ItemTypeChoices.POLL, ItemTypeChoices.STORY]
+        context["item_types"] = [ItemTypeChoices.JOB, ItemTypeChoices.POLL, ItemTypeChoices.STORY]
         return context
 
 class HomeView(generic.TemplateView):
