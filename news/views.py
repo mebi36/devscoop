@@ -1,8 +1,10 @@
 from typing import Any, Dict
 from django.shortcuts import render
 from django.views import generic
+from rest_framework import generics 
 
-from news.models import TopItem, ItemTypeChoices
+from .serializers import TopItemSerializer
+from .models import TopItem, ItemTypeChoices
 
 class LatestTopItemListView(generic.ListView):
     """Display latest news items."""
@@ -20,6 +22,13 @@ class LatestTopItemListView(generic.ListView):
         context =  super().get_context_data(**kwargs)
         context["item_types"] = [ItemTypeChoices.JOB, ItemTypeChoices.POLL, ItemTypeChoices.STORY]
         return context
+
+    
+class  TopItemApiListCreateView(generics.ListCreateView):
+  """API view to enable addition of news items locally."""
+  queryset = TopItem.objects.all()
+  serializer = TopItemSerializer
+
 
 class HomeView(generic.TemplateView):
     """Home view of the application."""
