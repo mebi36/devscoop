@@ -26,8 +26,8 @@ class LatestTopItemListView(generic.ListView):
     
 class  TopItemApiListCreateView(generics.ListCreateView):
   """API view to enable addition of news items locally."""
-  queryset = TopItem.objects.all()
-  serializer = TopItemSerializer
+    queryset = TopItem.objects.all()
+    serializer = TopItemSerializer
 
 
 class HomeView(generic.TemplateView):
