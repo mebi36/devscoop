@@ -58,7 +58,7 @@ class TopItemApiListCreateView(generics.ListCreateAPIView):
             
         #ensure item does not exist 
         title = serializer.validated_data["title"]
-        if title is not in (None, "") and TopItem.objects.filter(title__iexact=title).exists:
+        if title not in (None, "") and TopItem.objects.filter(title__iexact=title).exists:
             raise serializers.ValidationError({"titlte": "News item with same title already exists"})
 
 
