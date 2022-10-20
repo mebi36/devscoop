@@ -55,6 +55,12 @@ class TopItemApiListCreateView(generics.ListCreateAPIView):
         # ensure only stories, poll and jobs are being added here
         if serializer.validated_data["type"] in [ItemTypeChoices.POLL_OPTION, ItemTypeChoices.COMMENT]:
             raise serializers.ValidationError({"type":"Can only create top item (story, poll, job) posts here."})
+            
+        #ensure item does not exist 
+        title = serializer.validated_data["title"]
+        if title is not in (None, "") and TopItem.objects.filter(title__iexact=title).exists:
+            raise serializers.ValidationError({"titlte": "News item with same title already exists"})
+
 
         self.perform_create(serializer)
         return Response(serializer.data)
