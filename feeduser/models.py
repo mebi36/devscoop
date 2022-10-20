@@ -15,10 +15,5 @@ class FeedUser(AbstractUser):
         if self.from_hn is False:
             self.username = "".join(["lu_", self.username])
 
-
-    def save(self, *args, **kwargs):
-        # self.clean()
-        return super().save(*args, **kwargs)
-    
     def get_absolute_url(self):
         return reverse('feeduser:detail', kwargs={'pk': self.pk})

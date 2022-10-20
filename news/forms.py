@@ -3,12 +3,12 @@ from typing import Any, Dict
 
 from django import forms
 from django.utils.timezone import make_aware
-from news.models import TopItem
+from news.models import NewsItem
 
 
-class TopItemAPIForm(forms.ModelForm):
-    """Form for processing TopItem objects from external API."""
+class NewsItemAPIForm(forms.ModelForm):
+    """Form for processing NewsItem objects from external API."""
     
     class Meta:
-        model = TopItem
+        model = NewsItem
         fields = ['__all__']

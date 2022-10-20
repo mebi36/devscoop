@@ -1,10 +1,12 @@
 from django.urls import path
 
-from news.views import LatestTopItemListView, TopItemApiListCreateView
+from news.views import LatestNewsItemListView, NewsItemApiListCreateView, NewsItemDetailView
 
-
+app_name = 'news'
 urlpatterns = [
-    path("latest", LatestTopItemListView.as_view(), name="latest"),
+    path("latest", LatestNewsItemListView.as_view(), name="latest"),
+    path("detail/<str:pk>", NewsItemDetailView.as_view(), name="detail"),
     
-    path("items/", TopItemApiListCreateView.as_view(), name='items')
+    # api urls
+    path("items/", NewsItemApiListCreateView.as_view(), name='items')
 ]

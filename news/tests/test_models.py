@@ -1,15 +1,15 @@
 from django.test import TestCase
 
-from news.models import TopItem, Comment
+from news.models import NewsItem, Comment
 from news.tests import fixtures
 
 
-class TopItemTestCase(TestCase):
+class NewsItemTestCase(TestCase):
     def setUp(self) -> None:
-        self.story_obj = TopItem.objects.create(**fixtures.story1)
+        self.story_obj = NewsItem.objects.create(**fixtures.story1)
 
     def test_successful_story_creation(self):
-        story = TopItem.objects.get(id=fixtures.story1["id"])
+        story = NewsItem.objects.get(id=fixtures.story1["id"])
         self.assertEqual(story.title, fixtures.story1["title"])
     
     def test_local_ext_id_generation(self):

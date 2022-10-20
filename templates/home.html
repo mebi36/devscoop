@@ -1,2 +1,21 @@
 {% extends 'base.html' %}
 {% load static  %}
+{% block page_title %}Home{% endblock %}
+{% block content %}
+<div class="p-5 rounded-3 mb-5">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 d-sm-flex">
+            <img src="{% static 'img/hero.svg' %}" alt="hero image" class="img-fluid">
+        </div>
+        <div class="col-xs-12 col-sm-6 d-flex align-items-center">
+            <div class="row">
+                <h1>Welcome to the Dev Scoop</h1>
+                <p class="lead">
+                    The latest updates in the dev community.
+                </p>
+                <a href="{% url 'news:latest' %}" class="btn btn-primary text-white col-md-4 ms-3"><span class="me-1">Latest News</span></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

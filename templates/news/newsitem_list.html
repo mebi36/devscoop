@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block page_title %}Latest News{% endblock %}
+{% block content %}
+<div class="bg-white m-3 p-5">
+    <h1 class="text-center">Latest {{ request.GET.item_type|capfirst }} Updates</h1>
+    <div class="border-top pt-2">
+        <div class=" d-flex justify-content-end">
+            <form method="get" class="form-inline">
+                <span class="me-3">
+                    <select id="item_type" class="" name="item_type">
+                        <option selected="true" disabled="disabled">Filter by:</option>
+                        {% for item in item_types %}
+                        <option value={{item.value}}>{{item.label}}</option>
+                        {% endfor %}
+                    </select>
+                </span>
+                <span class="mb-2">
+                    <input type="text" class="input-small" placeholder="Search..." id="search" name="search">
+                </span>
+                <button class="btn btn-sm btn-primary" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    <ol>
+    {% for newsitem in page_obj %}
+        <div class="bg-secondary bg-opacity-10 m-2 p-2">
+            <a href="{% url 'news:detail' newsitem.id %}">{{ newsitem.title }}</a>
+            
+            <p>{{ newsitem.text|default:""|slice:50 }}</p>
+            <div>
+                <span class="text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag" viewBox="0 0 16 16">
+                        <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                        <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                      </svg>
+                </span>
+                <span class="text-danger me-2">{{ newsitem.type|capfirst }}</span>
+                {% if newsitem.time %}
+                <span class="text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                </span>
+                <span class="text-black">{{ newsitem.time|timesince }} ago</span>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </ol>
+    <div class="pagination border-top">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+            <a href="?page={{page_obj.previous_page_number}}">&lt; Previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ page_obj.number }} of {{paginator.num_pages}}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next &gt;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+{% endblock %}

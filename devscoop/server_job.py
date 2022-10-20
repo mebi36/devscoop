@@ -3,7 +3,7 @@ import pytz
 from typing import Any, Dict, List, Optional
 import requests
 
-from news.models import TopItem, Comment, PollOption
+from news.models import NewsItem, Comment, PollOption
 from feeduser.models import FeedUser
 
 API_URL = 'https://hacker-news.firebaseio.com/v0'
@@ -11,7 +11,7 @@ ITEM_ENDPOINT = '/item/'
 USER_ENDPOINT = '/user/'
 LATEST_ITEMS_ENDPOINT = '/newstories'
 COMMENT_FIELDS = [f.name for f in Comment._meta.get_fields()]
-TOPITEM_FIELDS = [f.name for f in TopItem._meta.get_fields()]
+TOPITEM_FIELDS = [f.name for f in NewsItem._meta.get_fields()]
 POLLOPTION_FIELDS = [f.name for f in PollOption._meta.get_fields()]
 FEEDUSER_FIELDS = [f.name for f in FeedUser._meta.get_fields()]
 
@@ -67,7 +67,7 @@ def api_call() -> None:
         top_item_obj = {k:v for k, v in top_item_obj.items() if k in TOPITEM_FIELDS}
 
         try:
-            top_item = TopItem.objects.create(**top_item_obj)
+            top_item = NewsItem.objects.create(**top_item_obj)
         except Exception as e:
             print(e)
             continue

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block page_title %}{{ object.type|capfirst }} - {{ object.title }}{% endblock %}
+{% block content %}
+<div class="bg-white m-3 p-5">
+    <h1>{{object.title}}</h1>
+    <div class="mt-5">
+        {% if object.text %}
+        {{object.text|safe}}
+        {% endif %}
+        {% if object.url %}
+        <a class="btn btn-primary" href="{{object.url}}" target="_blank" rel="noopener noreferrer">Read More</a>
+        {% endif %}
+    </div>
+    {% if object.type == "poll" %}
+    <div class="mt-3">
+        <h3>Poll Options</h3>
+        <ol>
+            {% for pollopt in object.pollopt_set.all|dictsort:"score" %}
+            <li>{{ pollopt.text }} - {{ pollopt.score }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+    {% endif %}
+    <div class="mt-5 border-top p-5">
+        <h2 class="text-center">
+            <span>Comments</span>
+        </h2>
+        <div>
+            {% if object.comments %}
+            {% for comment in object.comments %}
+            <div class="p-5 border bottom">
+            <p><span>{{ comment.text|safe }}</span></p>
+            
+            <span class="me-1 text-danger fw-bold">{{ comment.by }}</span>
+            <span>
+                <span class="text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                </span>
+            </span>
+            <span class="text-muted">{{ comment.time|timesince }} ago</span> 
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted text-center">No comments yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

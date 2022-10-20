@@ -1,7 +1,7 @@
 """The models of the project.
 
 The model is structured into: 
-    TopItem models to support Stories, Polls and Job posts.
+    NewsItem models to support Stories, Polls and Job posts.
     Comment model to hold comments,
     PollOptions to hold polls.
 """
@@ -58,9 +58,18 @@ class BaseItem(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+    
+    @property
+    def comments(self):
+        """Get comments for any kind of item. 
+        
+        Comments can also have comments.
+        """
+        return Comment.objects.filter(parent=self.id)
+    
 
 
-class TopItem(BaseItem):
+class NewsItem(BaseItem):
     """Model for top items (stories, polls and jobs)."""
 
     def __str__(self):
@@ -83,7 +92,7 @@ class Comment(BaseItem):
 
 class PollOption(BaseItem):
     """Model for poll options."""
-    parent = models.ForeignKey(TopItem, to_field='ext_id', limit_choices_to={'type': ItemTypeChoices.POLL}, on_delete=models.CASCADE)
+    parent = models.ForeignKey(NewsItem, to_field='ext_id', limit_choices_to={'type': ItemTypeChoices.POLL}, on_delete=models.CASCADE)
 
 
     def clean(self):

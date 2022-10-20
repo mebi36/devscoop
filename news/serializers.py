@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import TopItem, Comment, PollOption
+from .models import NewsItem, Comment, PollOption
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -17,10 +17,10 @@ class PollOptionSerializer(serializers.ModelSerializer):
         fields = "__all__"
                                      
 
-class TopItemSerializer(serializers.ModelSerializer):
-    """Serializer for TopItem model."""
+class NewsItemSerializer(serializers.ModelSerializer):
+    """Serializer for NewsItem model."""
     class Meta:
-        model = TopItem
+        model = NewsItem
         fields = "__all__"
     
     def get_comments(self, obj):
@@ -28,14 +28,14 @@ class TopItemSerializer(serializers.ModelSerializer):
 
     
 
-class TopItemCreationSerializer(TopItemSerializer):
+class NewsItemCreationSerializer(NewsItemSerializer):
     """Serializer for adding news item locally."""
     class Meta:
-        model = TopItem
+        model = NewsItem
         exclude = ('ext_id', 'id', 'from_hn')
     
 
-class PollSerializer(TopItemSerializer):
+class PollSerializer(NewsItemSerializer):
     """Serializer for Polls."""                                     
     pollopts = PollOptionSerializer(many=True)
 

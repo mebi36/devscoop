@@ -6,17 +6,17 @@ from rest_framework import generics
 from rest_framework import serializers
 from rest_framework.response import Response
 
-from .serializers import TopItemCreationSerializer, TopItemSerializer
-from .models import TopItem, ItemTypeChoices
+from .serializers import NewsItemCreationSerializer, NewsItemSerializer
+from .models import Comment, NewsItem, ItemTypeChoices
 
-class LatestTopItemListView(generic.ListView):
+class LatestNewsItemListView(generic.ListView):
     """Display latest news items."""
-    model = TopItem
+    model = NewsItem
     paginate_by: int = 20
 
 
     def get_queryset(self):
-        qs = TopItem.objects.all().order_by('-time')
+        qs = NewsItem.objects.all().order_by('-time')
         # filtering by item type
         if "item_type" in self.request.GET:
             qs = qs.filter(type=self.request.GET.get("item_type"))
@@ -31,24 +31,29 @@ class LatestTopItemListView(generic.ListView):
         context["item_types"] = [ItemTypeChoices.JOB, ItemTypeChoices.POLL, ItemTypeChoices.STORY]
         return context
 
-    
+class NewsItemDetailView(generic.DetailView):
+    """Detail view for a news item."""
+    model = NewsItem
+
+
+
 class HomeView(generic.TemplateView):
     """Home view of the application."""
     template_name: str = "home.html"
 
 
 # API Views
-class TopItemApiListCreateView(generics.ListCreateAPIView):
+class NewsItemApiListCreateView(generics.ListCreateAPIView):
     """API view to enable addition of news items locally."""
-    queryset = TopItem.objects.all()
-    # serializer_class = TopItemSerializer
+    queryset = NewsItem.objects.all()
+    # serializer_class = NewsItemSerializer
     def get_serializer_class(self):
         if self.request.method == "POST":
-            return TopItemCreationSerializer
-        return TopItemSerializer
+            return NewsItemCreationSerializer
+        return NewsItemSerializer
 
     def create(self, request, *args, **kwargs):
-        """Validate local topitem creation."""
+        """Validate local newsitem creation."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -58,7 +63,7 @@ class TopItemApiListCreateView(generics.ListCreateAPIView):
             
         #ensure item does not exist 
         title = serializer.validated_data["title"]
-        if title not in (None, "") and TopItem.objects.filter(title__iexact=title).exists:
+        if title not in (None, "") and NewsItem.objects.filter(title__iexact=title).exists:
             raise serializers.ValidationError({"titlte": "News item with same title already exists"})
 
 
