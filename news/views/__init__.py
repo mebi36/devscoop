@@ -1,0 +1,2 @@
+from .api_views import NewsItemApiListCreateView, NewsItemObjectApiUpdateDeleteView
+from .django_views import LatestNewsItemListView, NewsItemDetailView, HomeView

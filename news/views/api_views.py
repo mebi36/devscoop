@@ -1,62 +1,22 @@
-from typing import Any, Dict
-from django.views import generic
-from django.db.models import Q
 from rest_framework import generics
 from rest_framework import serializers
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
-from .serializers import NewsItemCreationSerializer, NewsItemSerializer
-from .models import NewsItem, ItemTypeChoices
-
-
-class LatestNewsItemListView(generic.ListView):
-    """Display latest news items."""
-
-    model = NewsItem
-    paginate_by: int = 20
-
-    def get_queryset(self):
-        qs = NewsItem.objects.all().order_by("-time")
-        # filtering by item type
-        if "item_type" in self.request.GET:
-            qs = qs.filter(type=self.request.GET.get("item_type"))
-        # filtering by search
-        if "search" in self.request.GET:
-            search_txt = self.request.GET.get("search")
-            qs = qs.filter(
-                Q(title__icontains=search_txt)
-                | Q(text__icontains=search_txt)
-                | Q(by__icontains=search_txt)
-            )
-        return qs
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["item_types"] = [
-            ItemTypeChoices.JOB,
-            ItemTypeChoices.POLL,
-            ItemTypeChoices.STORY,
-        ]
-        return context
+from news.serializers import NewsItemCreationSerializer, NewsItemSerializer
+from news.models import NewsItem, ItemTypeChoices
 
 
-class NewsItemDetailView(generic.DetailView):
-    """Detail view for a news item."""
-
-    model = NewsItem
-
-
-class HomeView(generic.TemplateView):
-    """Home view of the application."""
-
-    template_name: str = "home.html"
+class NewsItemPagination(PageNumberPagination):
+    """Pagination class for serializers."""
+    page_size = 25
 
 
-# API Views
 class NewsItemApiListCreateView(generics.ListCreateAPIView):
     """API view to enable addition of news items locally."""
 
     queryset = NewsItem.objects.all()
+    pagination_class = NewsItemPagination
     # serializer_class = NewsItemSerializer
     def get_serializer_class(self):
         if self.request.method == "POST":
