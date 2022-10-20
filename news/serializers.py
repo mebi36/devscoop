@@ -11,6 +11,17 @@ class TopItemSerializer(serializes.ModelSerializer):
         exclude = ['id', 'ext_id']
         def get_comments(self, obj):
             return CommentSerializer(queryset=Comment.objects.filter(content_object=obj)
+
+
+class PollSerializer(TopItemSerializer):
+    """Serializer for Polls."""                                     
+    pollopts = PollOptionSerializer(many=True)
+
+class PollOptionSeralizer(serializers.ModelSerializer):
+    """Serializer for poll options."""  
+    class Meta:
+        model = PollOption
+        fields = ["__all__"]
                                      
                                      
 class CommentSerializer(serializers.ModelSerializer):
