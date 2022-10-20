@@ -16,4 +16,4 @@ class FeedUser(AbstractUser):
             self.username = "".join(["lu_", self.username])
 
     def get_absolute_url(self):
-        return reverse('feeduser:detail', kwargs={'pk': self.pk})
+        return reverse("feeduser:detail", kwargs={"pk": self.pk})

@@ -1,50 +1,61 @@
 from typing import Any, Dict
-from django.shortcuts import render
 from django.views import generic
 from django.db.models import Q
-from rest_framework import generics 
+from rest_framework import generics
 from rest_framework import serializers
 from rest_framework.response import Response
 
 from .serializers import NewsItemCreationSerializer, NewsItemSerializer
-from .models import Comment, NewsItem, ItemTypeChoices
+from .models import NewsItem, ItemTypeChoices
+
 
 class LatestNewsItemListView(generic.ListView):
     """Display latest news items."""
+
     model = NewsItem
     paginate_by: int = 20
 
-
     def get_queryset(self):
-        qs = NewsItem.objects.all().order_by('-time')
+        qs = NewsItem.objects.all().order_by("-time")
         # filtering by item type
         if "item_type" in self.request.GET:
             qs = qs.filter(type=self.request.GET.get("item_type"))
         # filtering by search
         if "search" in self.request.GET:
-            search_txt= self.request.GET.get("search")
-            qs = qs.filter(Q(title__icontains=search_txt) | Q(text__icontains=search_txt) | Q(by__icontains=search_txt))
+            search_txt = self.request.GET.get("search")
+            qs = qs.filter(
+                Q(title__icontains=search_txt)
+                | Q(text__icontains=search_txt)
+                | Q(by__icontains=search_txt)
+            )
         return qs
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context =  super().get_context_data(**kwargs)
-        context["item_types"] = [ItemTypeChoices.JOB, ItemTypeChoices.POLL, ItemTypeChoices.STORY]
+        context = super().get_context_data(**kwargs)
+        context["item_types"] = [
+            ItemTypeChoices.JOB,
+            ItemTypeChoices.POLL,
+            ItemTypeChoices.STORY,
+        ]
         return context
+
 
 class NewsItemDetailView(generic.DetailView):
     """Detail view for a news item."""
-    model = NewsItem
 
+    model = NewsItem
 
 
 class HomeView(generic.TemplateView):
     """Home view of the application."""
+
     template_name: str = "home.html"
 
 
 # API Views
 class NewsItemApiListCreateView(generics.ListCreateAPIView):
     """API view to enable addition of news items locally."""
+
     queryset = NewsItem.objects.all()
     # serializer_class = NewsItemSerializer
     def get_serializer_class(self):
@@ -58,14 +69,41 @@ class NewsItemApiListCreateView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         # ensure only stories, poll and jobs are being added here
-        if serializer.validated_data["type"] in [ItemTypeChoices.POLL_OPTION, ItemTypeChoices.COMMENT]:
-            raise serializers.ValidationError({"type":"Can only create top item (story, poll, job) posts here."})
-            
-        #ensure item does not exist 
-        title = serializer.validated_data["title"]
-        if title not in (None, "") and NewsItem.objects.filter(title__iexact=title).exists:
-            raise serializers.ValidationError({"titlte": "News item with same title already exists"})
+        if serializer.validated_data["type"] in [
+            ItemTypeChoices.POLL_OPTION,
+            ItemTypeChoices.COMMENT,
+        ]:
+            raise serializers.ValidationError(
+                {
+                    "type": "Can only create top item (story, poll, job) posts here."
+                }
+            )
 
+        # ensure item does not exist
+        title = serializer.validated_data["title"]
+        if (
+            title not in (None, "")
+            and NewsItem.objects.filter(title__iexact=title).exists
+        ):
+            raise serializers.ValidationError(
+                {"titlte": "News item with same title already exists"}
+            )
 
         self.perform_create(serializer)
         return Response(serializer.data)
+
+
+class NewsItemObjectApiUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    """View for modifying locally generated news items.
+
+    Will only find news items generated locally."""
+
+    queryset = NewsItem.objects.filter(from_hn=False)
+    serializer_class = NewsItemSerializer
+
+
+class NewsItemObjectApiDetailView(generics.RetrieveAPIView):
+    """View for only displaying news items."""
+
+    queryset = NewsItem.objects.all()
+    serializer_class = NewsItemSerializer

@@ -6,10 +6,10 @@ import requests
 from news.models import NewsItem, Comment, PollOption
 from feeduser.models import FeedUser
 
-API_URL = 'https://hacker-news.firebaseio.com/v0'
-ITEM_ENDPOINT = '/item/'
-USER_ENDPOINT = '/user/'
-LATEST_ITEMS_ENDPOINT = '/newstories'
+API_URL = "https://hacker-news.firebaseio.com/v0"
+ITEM_ENDPOINT = "/item/"
+USER_ENDPOINT = "/user/"
+LATEST_ITEMS_ENDPOINT = "/newstories"
 COMMENT_FIELDS = [f.name for f in Comment._meta.get_fields()]
 TOPITEM_FIELDS = [f.name for f in NewsItem._meta.get_fields()]
 POLLOPTION_FIELDS = [f.name for f in PollOption._meta.get_fields()]
@@ -18,7 +18,7 @@ FEEDUSER_FIELDS = [f.name for f in FeedUser._meta.get_fields()]
 
 def get_item_list() -> Optional[List[int]]:
     """Get list of latest new items from the HN api."""
-    latest_items_url = ''.join([API_URL, LATEST_ITEMS_ENDPOINT, '.json'])
+    latest_items_url = "".join([API_URL, LATEST_ITEMS_ENDPOINT, ".json"])
     api_response = requests.get(latest_items_url)
     if api_response.status_code == 200:
         return api_response.json()
@@ -27,7 +27,7 @@ def get_item_list() -> Optional[List[int]]:
 
 def get_item(item_id: int) -> Optional[Dict[str, Any]]:
     """Get item from HN api based by id."""
-    item_url = ''.join([API_URL, ITEM_ENDPOINT, str(item_id), '.json'])
+    item_url = "".join([API_URL, ITEM_ENDPOINT, str(item_id), ".json"])
     api_response = requests.get(item_url)
 
     if api_response.status_code == 200:
@@ -37,14 +37,16 @@ def get_item(item_id: int) -> Optional[Dict[str, Any]]:
 
 def save_user(user_id: str) -> None:
     """Save creator of an item."""
-    user_resp = requests.get(''.join([API_URL, USER_ENDPOINT, user_id, '.json']))
+    user_resp = requests.get(
+        "".join([API_URL, USER_ENDPOINT, user_id, ".json"])
+    )
     if user_resp.status_code != 200:
         raise RuntimeError("Could not get User object")
     user_obj = user_resp.json()
     user_obj = prepare_for_save(user_obj)
-    user_obj = {k:v for k, v in user_obj.items() if k in FEEDUSER_FIELDS}
+    user_obj = {k: v for k, v in user_obj.items() if k in FEEDUSER_FIELDS}
     try:
-        feed_user = FeedUser.objects.create(username = user_id, **user_obj)
+        feed_user = FeedUser.objects.create(username=user_id, **user_obj)
     except Exception as e:
         print(e)
         return
@@ -59,12 +61,14 @@ def api_call() -> None:
         top_item_obj = get_item(top_item_id)
 
         top_item_obj = prepare_for_save(top_item_obj)
-        
-        comment_list =  []
+
+        comment_list = []
         if "kids" in top_item_obj:
             comment_list = top_item_obj["kids"]
-        
-        top_item_obj = {k:v for k, v in top_item_obj.items() if k in TOPITEM_FIELDS}
+
+        top_item_obj = {
+            k: v for k, v in top_item_obj.items() if k in TOPITEM_FIELDS
+        }
 
         try:
             top_item = NewsItem.objects.create(**top_item_obj)
@@ -79,12 +83,16 @@ def api_call() -> None:
             for poll_id in top_item_obj["parts"]:
                 pollopt_obj = get_item(poll_id)
                 pollopt_obj = prepare_for_save(pollopt_obj)
-                pollopt_obj = {k:v for k, v in pollopt_obj.items() if k in POLLOPTION_FIELDS}
+                pollopt_obj = {
+                    k: v
+                    for k, v in pollopt_obj.items()
+                    if k in POLLOPTION_FIELDS
+                }
                 try:
                     pollopt = PollOption.objects.create(**pollopt_obj)
                 except Exception as e:
                     print(e)
-                    continue 
+                    continue
                 else:
                     print("[SAVED] %s: %s" % (pollopt.type, pollopt.text))
 
@@ -95,7 +103,9 @@ def api_call() -> None:
         for comment_id in comment_list:
             comment_obj = get_item(comment_id)
             comment_obj = prepare_for_save(comment_obj)
-            comment_obj = {k:v for k, v in comment_obj.items() if k in COMMENT_FIELDS}
+            comment_obj = {
+                k: v for k, v in comment_obj.items() if k in COMMENT_FIELDS
+            }
             try:
                 comm = Comment(content_object=top_item, **comment_obj)
                 comm.save()
@@ -115,8 +125,12 @@ def prepare_for_save(item_dict: Dict[str, Any]):
     item_dict["ext_id"] = item_dict.pop("id")
     # convert UNIX time from api to datetime object
     if "time" in item_dict:
-        item_dict["time"] = datetime.fromtimestamp(item_dict["time"], tz=pytz.UTC)
+        item_dict["time"] = datetime.fromtimestamp(
+            item_dict["time"], tz=pytz.UTC
+        )
     if "created" in item_dict:
-        item_dict["created"] = datetime.fromtimestamp(item_dict["created"], tz=pytz.UTC)
+        item_dict["created"] = datetime.fromtimestamp(
+            item_dict["created"], tz=pytz.UTC
+        )
         item_dict["date_joined"] = item_dict.pop("created")
     return item_dict

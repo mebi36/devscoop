@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class FeeduserConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'feeduser'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "feeduser"

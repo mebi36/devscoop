@@ -6,6 +6,6 @@ app_name = "feeduser"
 
 
 urlpatterns = [
-    path('new/', CreateFeedUserView.as_view(), name='new'),
-    path('<int:pk>/', FeedUserDetailView.as_view(), name='detail'),
+    path("new/", CreateFeedUserView.as_view(), name="new"),
+    path("<int:pk>/", FeedUserDetailView.as_view(), name="detail"),
 ]

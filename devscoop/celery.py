@@ -16,4 +16,5 @@ app.autodiscover_tasks()
 @app.task(bind=True)
 def api_call(self):
     from devscoop import server_job
+
     server_job.api_call()

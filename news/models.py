@@ -11,19 +11,22 @@ from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.urls import reverse
 
 
 class ItemTypeChoices(models.TextChoices):
     """Enum of item types."""
-    JOB = 'job'
-    STORY = 'story'
-    POLL = 'poll'
-    COMMENT = 'comment'
-    POLL_OPTION = 'pollopt'
+
+    JOB = "job"
+    STORY = "story"
+    POLL = "poll"
+    COMMENT = "comment"
+    POLL_OPTION = "pollopt"
 
 
 class BaseItem(models.Model):
     """This is an abstract model containing common fields shared by all other models."""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     ext_id = models.TextField("Identifier from external API", unique=True)
     type = models.TextField(max_length=10, choices=ItemTypeChoices.choices)
@@ -40,13 +43,18 @@ class BaseItem(models.Model):
 
     class Meta:
         abstract = True
-        constraints = [models.CheckConstraint(check=models.Q(type__in=ItemTypeChoices.values), name="%(class)s_check_item_type")]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(type__in=ItemTypeChoices.values),
+                name="%(class)s_check_item_type",
+            )
+        ]
 
     def clean(self):
         """Extends the clean method.
-        
-        This is done primarily to add a value for ext_id field for 
-        locally generated items. 
+
+        This is done primarily to add a value for ext_id field for
+        locally generated items.
         The ext_id of locally generated items are appended with an "L"
         to avoid any form of conflict with items coming from the external
         API.
@@ -58,15 +66,14 @@ class BaseItem(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
-    
+
     @property
     def comments(self):
-        """Get comments for any kind of item. 
-        
+        """Get comments for any kind of item.
+
         Comments can also have comments.
         """
         return Comment.objects.filter(parent=self.id)
-    
 
 
 class NewsItem(BaseItem):
@@ -75,12 +82,19 @@ class NewsItem(BaseItem):
     def __str__(self):
         return "%s: %s" % (self.type.capitalize(), self.title)
 
+    def get_absolute_url(self):
+        return reverse("news:detail", kwargs={"pk": self.id})
+
+    def get_api_detail_url(self):
+        return reverse("news:api-detail", kwargs={"pk": self.id})
+
 
 class Comment(BaseItem):
     """Model for comments."""
+
     parent = models.TextField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    content_object = GenericForeignKey('content_type', 'parent')
+    content_object = GenericForeignKey("content_type", "parent")
 
     class Meta:
         models.indexes = [models.Index(fields=["content_type", "parent"])]
@@ -92,10 +106,14 @@ class Comment(BaseItem):
 
 class PollOption(BaseItem):
     """Model for poll options."""
-    parent = models.ForeignKey(NewsItem, to_field='ext_id', limit_choices_to={'type': ItemTypeChoices.POLL}, on_delete=models.CASCADE)
 
+    parent = models.ForeignKey(
+        NewsItem,
+        to_field="ext_id",
+        limit_choices_to={"type": ItemTypeChoices.POLL},
+        on_delete=models.CASCADE,
+    )
 
     def clean(self):
         super().clean()
         self.type = ItemTypeChoices.POLL_OPTION
-    
