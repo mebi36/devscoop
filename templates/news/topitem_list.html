@@ -1,13 +1,14 @@
 <div>
-    <form method="post">
-      {{csrf_token}}
+    <form method="get">
       <label for="item_type">Filter news feed by:</label>
       <select id="item_type" name="item_type">
+        <option selected="true" disabled="disabled">Filter by:</option>
         {% for item in item_types %}
         <option value={{item.value}}>{{item.label}}</option>
         {% endfor %}
       </select>
-      <button type="submit">Filter</button>
+      <input type="text" placeholder="Search..." id="search" name="search">
+      <button type="submit">Search</button>
     </form>
 </div>
 <ol>

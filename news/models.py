@@ -36,7 +36,7 @@ class BaseItem(models.Model):
     url = models.URLField(null=True, blank=True)
     title = models.TextField(null=True, blank=True)
     score = models.IntegerField(null=True, blank=True)
-    is_local = models.BooleanField(default=False)
+    from_hn = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

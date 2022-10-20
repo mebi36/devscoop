@@ -17,10 +17,6 @@ class CreateFeedUserView(generic.CreateView):
         context =  super().get_context_data(**kwargs)
         context["form"] = FeedUserForm(initial={'is_local': True})
         return context
-    
-    # def get_success_url(self) -> str:
-    #     return super().get_success_url()
-
 
 class FeedUserDetailView(generic.DetailView):
     """View details of a FeedUser object."""

@@ -1,9 +1,12 @@
 from typing import Any, Dict
 from django.shortcuts import render
 from django.views import generic
+from django.db.models import Q
 from rest_framework import generics 
+from rest_framework import serializers
+from rest_framework.response import Response
 
-from .serializers import TopItemSerializer
+from .serializers import TopItemCreationSerializer, TopItemSerializer
 from .models import TopItem, ItemTypeChoices
 
 class LatestTopItemListView(generic.ListView):
@@ -14,8 +17,13 @@ class LatestTopItemListView(generic.ListView):
 
     def get_queryset(self):
         qs = TopItem.objects.all().order_by('-time')
-        if "item_type" in self.kwargs:
-            qs.filter(type=self.kwargs["item_type"])
+        # filtering by item type
+        if "item_type" in self.request.GET:
+            qs = qs.filter(type=self.request.GET.get("item_type"))
+        # filtering by search
+        if "search" in self.request.GET:
+            search_txt= self.request.GET.get("search")
+            qs = qs.filter(Q(title__icontains=search_txt) | Q(text__icontains=search_txt) | Q(by__icontains=search_txt))
         return qs
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -24,12 +32,29 @@ class LatestTopItemListView(generic.ListView):
         return context
 
     
-class  TopItemApiListCreateView(generics.ListCreateView):
-  """API view to enable addition of news items locally."""
-    queryset = TopItem.objects.all()
-    serializer = TopItemSerializer
-
-
 class HomeView(generic.TemplateView):
     """Home view of the application."""
     template_name: str = "home.html"
+
+
+# API Views
+class TopItemApiListCreateView(generics.ListCreateAPIView):
+    """API view to enable addition of news items locally."""
+    queryset = TopItem.objects.all()
+    # serializer_class = TopItemSerializer
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return TopItemCreationSerializer
+        return TopItemSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Validate local topitem creation."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # ensure only stories, poll and jobs are being added here
+        if serializer.validated_data["type"] in [ItemTypeChoices.POLL_OPTION, ItemTypeChoices.COMMENT]:
+            raise serializers.ValidationError({"type":"Can only create top item (story, poll, job) posts here."})
+
+        self.perform_create(serializer)
+        return Response(serializer.data)
