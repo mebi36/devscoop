@@ -7,7 +7,6 @@ The model is structured into:
 """
 import uuid
 
-from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -47,25 +46,16 @@ class BaseItem(models.Model):
             models.CheckConstraint(
                 check=models.Q(type__in=ItemTypeChoices.values),
                 name="%(class)s_check_item_type",
-            )
+            ),
         ]
 
-    def clean(self):
-        """Extends the clean method.
-
-        This is done primarily to add a value for ext_id field for
-        locally generated items.
-        The ext_id of locally generated items are appended with an "L"
-        to avoid any form of conflict with items coming from the external
-        API.
+    def save(self, *args, **kwargs):
+        """Extending the save method primarily to add a value to the ext_id
+        field for locally generated objects.
         """
-        super().clean()
         if not self.ext_id:
             self.ext_id = "".join(["L_", str(self.id)])
-
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
+        return super(BaseItem, self).save(*args, **kwargs)
 
     @property
     def comments(self):
@@ -78,7 +68,13 @@ class BaseItem(models.Model):
 
 class NewsItem(BaseItem):
     """Model for top items (stories, polls and jobs)."""
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["title"], name="%(class)s_unique_title")]
 
+    def save(self, *args, **kwargs):
+        """"Save title in lowercase to enforce UniqueConstraint on field."""
+        self.title = self.title.lower()
+        return super(NewsItem, self).save(*args, **kwargs)
     def __str__(self):
         return "%s: %s" % (self.type.capitalize(), self.title)
 
@@ -100,7 +96,7 @@ class Comment(BaseItem):
         models.indexes = [models.Index(fields=["content_type", "parent"])]
 
     def clean(self):
-        super().clean()
+        super(Comment, self).clean()
         self.type = ItemTypeChoices.COMMENT
 
 
@@ -115,5 +111,5 @@ class PollOption(BaseItem):
     )
 
     def clean(self):
-        super().clean()
+        super(Comment, self).clean()
         self.type = ItemTypeChoices.POLL_OPTION

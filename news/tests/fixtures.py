@@ -19,7 +19,7 @@ poll1_opt1 = {
     "type": "pollopt",
     "score": 100,
     "text": "Perl",
-    "parent": "".join(["L", str(poll1["id"])]),
+    "parent": "".join(["L_", str(poll1["id"])]),
     "url": "http://localhost:8000"
 }
 poll1_opt2 = {
@@ -27,7 +27,7 @@ poll1_opt2 = {
     "type": "pollopt",
     "score": 30,
     "text": "Perl",
-    "parent": "".join(["L", str(poll1["id"])]),
+    "parent": "".join(["L_", str(poll1["id"])]),
     "url": "http://localhost:8000"
 }
 poll2_opt3 = {
@@ -35,7 +35,7 @@ poll2_opt3 = {
     "type": "job",
     "score": 80,
     "text": "Rust",
-    "parent": "".join(["L", str(poll1["id"])]),
+    "parent": "".join(["L_", str(poll1["id"])]),
     "url": "http://localhost:8000"
 }
 
@@ -59,13 +59,13 @@ story2 = {
 story1_comment = {
     "id": uuid.uuid4(),
     "type": "comment",
-    "parent": "".join(["L2", str(story1["id"])]),
+    "parent": "".join(["L_", str(story1["id"])]),
     "text": "cool"
 }
 
 story1_comment2 = {
     "id": uuid.uuid4(),
     "type": "comment",
-    "parent": "".join(["L", str(poll1["id"])]),
+    "parent": "".join(["L_", str(poll1["id"])]),
     "text": "cool"
 }
