@@ -15,9 +15,8 @@ class NewsItemPagination(PageNumberPagination):
 class NewsItemApiListCreateView(generics.ListCreateAPIView):
     """API view to enable addition of news items locally."""
 
-    queryset = NewsItem.objects.all()
+    queryset = NewsItem.objects.all().order_by('id')
     pagination_class = NewsItemPagination
-    # serializer_class = NewsItemSerializer
     def get_serializer_class(self):
         if self.request.method == "POST":
             return NewsItemCreationSerializer
@@ -43,7 +42,7 @@ class NewsItemApiListCreateView(generics.ListCreateAPIView):
         title = serializer.validated_data["title"]
         if (
             title not in (None, "")
-            and NewsItem.objects.filter(title__iexact=title).exists
+            and NewsItem.objects.filter(title__iexact=title).exists()
         ):
             raise serializers.ValidationError(
                 {"titlte": "News item with same title already exists"}

@@ -25,7 +25,7 @@ class NewsItemSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="news:api-object-modify"
     )
-    comments = CommentSerializer(many=True)
+    comments = CommentSerializer(many=True, required=False)
 
     class Meta:
         model = NewsItem

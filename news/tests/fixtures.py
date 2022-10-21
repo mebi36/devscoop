@@ -47,7 +47,17 @@ story1 = {
     "title": "Hello, world",
     "url": "http://localhost:8000"
 }
-
+api_story1 = {
+    "type": "story",
+    "score": 30,
+    "title": "Hello, world",
+    "url": "http://localhost:8000"
+}
+api_story2 = {
+    "type": "story",
+    "score": 30,
+    "title": "hello, world",
+}
 story2 = {
     "id": uuid.uuid4(),
     "type": "story",
